@@ -119,7 +119,7 @@ module Splinterland =
             do! pressKey Keys.Escape context
             return ()
         }
-    let transferDec config context =
+    let transferDec config =
         [|
             sentDec config 
         |]
@@ -128,9 +128,9 @@ module Splinterland =
         let transferSPS user password (amount: double) context =
             async {
                 do! evaluate "SM.ShowDialog('sps_management/transfer');" context
-                do! typeBySelector "#sps_transfer_amount" (donationAmount.ToString("0.000")) context
+                do! typeBySelector "#sps_transfer_amount" (amount.ToString("0.000")) context
                 do! selectOptionBySelector "#transfer_dest_select" "player" context
-                do! typeBySelector "#txtPlayerToSend" "assassyn" context
+                do! typeBySelector "#txtPlayerToSend" user context
                 do! approvePayment "#btnTransferOut" password context
                 do! pressKey Keys.Escape context 
                 return ()
