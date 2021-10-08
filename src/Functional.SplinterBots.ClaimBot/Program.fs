@@ -31,6 +31,6 @@ let main(args) =
     let test =
         getConfiguration args
         |> Array.item 0
-    trasferUserResources test 
+    trasferUserResources test |> ignore
     printfn "Finished running SplinterBots"
     0
