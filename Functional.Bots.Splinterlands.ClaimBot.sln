@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31717.71
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{54437566-C6E5-4F50-ABC0-8310C23E7347}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Functional.Bots.Browser", "src\Functional.Bots.Browser\Functional.Bots.Browser.fsproj", "{063C6B23-5D7A-4199-9872-CCFA14E3F8A0}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Functional.Bots.Splinterland.ClaimBot", "src\Functional.SplinterBots.ClaimBOt\Functional.Bots.Splinterland.ClaimBot.fsproj", "{4DA80795-C454-4030-8944-3D036B168EDE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{063C6B23-5D7A-4199-9872-CCFA14E3F8A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{063C6B23-5D7A-4199-9872-CCFA14E3F8A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{063C6B23-5D7A-4199-9872-CCFA14E3F8A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{063C6B23-5D7A-4199-9872-CCFA14E3F8A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DA80795-C454-4030-8944-3D036B168EDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DA80795-C454-4030-8944-3D036B168EDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DA80795-C454-4030-8944-3D036B168EDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DA80795-C454-4030-8944-3D036B168EDE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{063C6B23-5D7A-4199-9872-CCFA14E3F8A0} = {54437566-C6E5-4F50-ABC0-8310C23E7347}
+		{4DA80795-C454-4030-8944-3D036B168EDE} = {54437566-C6E5-4F50-ABC0-8310C23E7347}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C8989DB1-14F8-41EF-B8FC-B5DC625780BE}
+	EndGlobalSection
+EndGlobal
