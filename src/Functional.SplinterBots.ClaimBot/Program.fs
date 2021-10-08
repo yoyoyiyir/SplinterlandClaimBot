@@ -20,12 +20,11 @@ let trasferUserResources transferDetails =
         Splinterland.login transferDetails
         Splinterland.closePopUp()
         Splinterland.transferDec transferDetails
-        Splinterland.claimSPS()
-        //Splinterland.transferSPS
+        Splinterland.transferSPS transferDetails
         //Splinterland.transferCards
     |] |> Seq.concat |> Splinterland.runActions page
     
-    //page |> Splinterland.close
+    Splinterland.close page
 
 [<EntryPoint>]
 let main(args) =

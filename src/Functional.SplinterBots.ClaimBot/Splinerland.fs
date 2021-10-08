@@ -48,10 +48,8 @@ module Splinterland =
             goTo "https://splinterlands.com/"
         |]
 
-    //let close page = 
-    //    (async.Return page)
-    //    |> 
-    //    |> Async.RunSynchronously
+    let close context = 
+        context |> closeBrowser
 
     let login (config: TransferDetails) = 
         [|
@@ -65,11 +63,6 @@ module Splinterland =
         [| 
             pressKey Keys.Escape 
         |]
-
-    //let private confirmWalletTransaction password context =
-    //    async {
-
-    //    }
 
     let transferDecToUser username password percentage context = 
         async {
@@ -104,50 +97,42 @@ module Splinterland =
             transferDecToUser "assassyn" config.password 0.01
             transferDecToUser config.destinationAccount config.password 0.99
         |] 
+        
+    let sentSPSToUser transferDetails context =
+        async {
+            let! _ = evaluate "SM.ShowHomeView('sps_management');" context
+        
+            let! spsAmount = 
+                readValueFromSelector "#player_ingame_value" ReadValuesKeys.GameBalance context 
+         
+            let! _ = evaluate "SM.ShowDialog('sps_management/transfer');" context
+            let! _ = typeBySelector "#sps_transfer_amount" spsAmount context
+            let! _ = selectOptionBySelector "#transfer_dest_select" "player" context
+            let! _ = typeBySelector "#txtPlayerToSend" transferDetails.destinationAccount context
+            let! _ = clickBySelector "#btnTransferOut" context
+            let! _ = closeConfirmationDialogWhenAppear() context
+            let! _ = typeBySelector "#active_key" transferDetails.password context
+            let! _ = clickBySelector "#approve_tx" context
+            let! _ = pressKey Keys.Escape context
+                
+            return ()
+        }
      
-    let claimSPS () =
+    let transferSPS transferDetails =
         [|
             evaluate "SM.ShowHomeView('sps_management');"
             closeConfirmationDialogWhenAppear()
             clickBySelector "#claim_btn_hive"
-            pressKey Keys.Enter
+            pressKey Keys.Escape
             clickBySelector "#claim_btn_binance"
-            pressKey Keys.Enter
+            pressKey Keys.Escape
             clickBySelector "#claim_btn_wax"
-            pressKey Keys.Enter
+            pressKey Keys.Escape
             clickBySelector "#claim_btn_eth"
-            pressKey Keys.Enter
+            pressKey Keys.Escape
             clickBySelector "#claim_btn_steem"
-            pressKey Keys.Enter
+            pressKey Keys.Escape
             clickBySelector "#claim_btn_tron"
-            pressKey Keys.Enter
+            pressKey Keys.Escape
+            sentSPSToUser transferDetails
         |]
-
-    let transferSPSToUser username password percentage context =
-        async {
-            let! _ = evaluate "SM.ShowHomeView('sps_management');" context
-
-            let! spsAmount = 
-                readValueFromSelector "#player_ingame_value" ReadValuesKeys.GameBalance context 
-            let transferAmount = 
-                (double(spsAmount) * percentage)
-
-            //if transferAmount > 1.0 then 
-            let! _ = evaluate "SM.ShowDialog('sps_management/transfer');" context
-            let! _ = typeBySelector "#sps_transfer_amount" (transferAmount.ToString("0.000")) context
-            let! _ = selectOptionBySelector "#transfer_dest_select" "player" context
-            let! _ = typeBySelector "#txtPlayerToSend" username context
-            let! _ = Logger.logger "Open dialog" context
-            let! _ = clickBySelector "#btnTransferOut" context
-            let! _ = closeConfirmationDialogWhenAppear() context            
-            let! _ = Logger.logger "waiting for dialog approval" context
-            let! _ = Logger.logger "Continue with sending the DEC" context
-            let! _ = typeBySelector "#active_key" password context
-            let! _ = Logger.logger "Password provided now time for accept" context
-            let! _ = clickBySelector "#approve_tx" context
-            ()
-
-            let! _ = pressKey Keys.Escape context
-
-            return ()
-        }
