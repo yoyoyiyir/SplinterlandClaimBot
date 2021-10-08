@@ -34,6 +34,12 @@ module Splinterland =
     type ReadValuesKeys =
         | GameBalance
 
+    let (|LowerThanMinimal|_|) input =
+        if input < 0.001 then 
+            Some true
+        else
+            None
+
     let getPage () =
         getBrowser false
         |> getNewPage
@@ -58,66 +64,99 @@ module Splinterland =
             typeBySelector "#password" config.password
             pressKey Keys.Enter 
         |]
+
+    let logout () =
+        [|
+            evaluate "SM.Logout();"
+        |]
         
     let closePopUp () =
         [| 
             pressKey Keys.Escape 
         |]
 
-    let transferDecToUser username password percentage context = 
+    let private approvePayment selector password context =
+        async {
+            do! Logger.logger "Open dialog" context
+            do! closeConfirmationDialogWhenAppear() context              
+            do! clickBySelector selector context
+            do! Logger.logger "waiting for dialog approval" context
+            do! Logger.logger "Continue with sending the DEC" context
+            do! typeBySelector "#active_key" password context
+            do! Logger.logger "Password provided now time for accept" context
+            do! clickBySelector "#approve_tx" context
+            do! pressKey Keys.Escape context 
+            ()
+        }
+
+    let private sentDec config context =
+        let transferDecToUser username password (amount: double) context = 
+            async {
+                do! typeBySelector "#dec_amount" (amount.ToString("0.000")) context
+                do! selectOptionBySelector "#dec_wallet_type" "player" context
+                do! typeBySelector "input[name=playerName]" username context
+                do! approvePayment "#transfer_out_btn" password context
+                return ()
+            }
         async {
             let! _ =  evaluate "SM.ShowDialog('dec_info');" context
 
             let! decAmount = 
                 readValueFromSelector "#game_balance" ReadValuesKeys.GameBalance context 
-            let transferAmount = 
-                (double(decAmount) * percentage)
 
-            if transferAmount > 1.0 then 
-                let! _ = typeBySelector "#dec_amount" (transferAmount.ToString("0.000")) context
-                let! _ = selectOptionBySelector "#dec_wallet_type" "player" context
-                let! _ = typeBySelector "input[name=playerName]" username context
-                let! _ = Logger.logger "Open dialog" context
-                let! _ = clickBySelector "#transfer_out_btn" context
-                let! _ = closeConfirmationDialogWhenAppear() context            
-                let! _ = Logger.logger "waiting for dialog approval" context
-                let! _ = Logger.logger "Continue with sending the DEC" context
-                let! _ = typeBySelector "#active_key" password context
-                let! _ = Logger.logger "Password provided now time for accept" context
-                let! _ = clickBySelector "#approve_tx" context
-                ()
+            let amount = double(decAmount)
+            let donationAmount = 
+                match amount with
+                | 0.0 -> amount
+                | LowerThanMinimal amount -> 0.001
+                | _ -> amount
+            let userAmount = amount - donationAmount
 
-            let! _ = pressKey Keys.Escape context
+            if donationAmount > 0.0 then 
+                do! transferDecToUser "assassyn" config.password donationAmount context
+                do! transferDecToUser config.destinationAccount config.password userAmount context
 
+            do! pressKey Keys.Escape context
             return ()
         }
-
-    let transferDec config =
+    let transferDec config context =
         [|
-            transferDecToUser "assassyn" config.password 0.01
-            transferDecToUser config.destinationAccount config.password 0.99
-        |] 
+            sentDec config 
+        |]
         
-    let sentSPSToUser transferDetails context =
+    let private sentSPS config context =
+        let transferSPS user password (amount: double) context =
+            async {
+                do! evaluate "SM.ShowDialog('sps_management/transfer');" context
+                do! typeBySelector "#sps_transfer_amount" (donationAmount.ToString("0.000")) context
+                do! selectOptionBySelector "#transfer_dest_select" "player" context
+                do! typeBySelector "#txtPlayerToSend" "assassyn" context
+                do! approvePayment "#btnTransferOut" password context
+                do! pressKey Keys.Escape context 
+                return ()
+            }
         async {
             let! _ = evaluate "SM.ShowHomeView('sps_management');" context
         
             let! spsAmount = 
                 readValueFromSelector "#player_ingame_value" ReadValuesKeys.GameBalance context 
-         
-            let! _ = evaluate "SM.ShowDialog('sps_management/transfer');" context
-            let! _ = typeBySelector "#sps_transfer_amount" spsAmount context
-            let! _ = selectOptionBySelector "#transfer_dest_select" "player" context
-            let! _ = typeBySelector "#txtPlayerToSend" transferDetails.destinationAccount context
-            let! _ = clickBySelector "#btnTransferOut" context
-            let! _ = closeConfirmationDialogWhenAppear() context
-            let! _ = typeBySelector "#active_key" transferDetails.password context
-            let! _ = clickBySelector "#approve_tx" context
-            let! _ = pressKey Keys.Escape context
+
+            let amount = double(spsAmount)
+            let donationAmount = 
+                match amount with
+                | 0.0 -> amount
+                | LowerThanMinimal amount -> 0.001
+                | _ -> amount
+            let userAmount = amount - donationAmount
+
+            if donationAmount > 0.0 then 
+                do! transferSPS "assassyn" config.password donationAmount context
+                do! transferSPS config.destinationAccount config.password userAmount context
                 
+            do! pressKey Keys.Escape context
+
             return ()
-        }
-     
+        }   
     let transferSPS transferDetails =
         [|
             evaluate "SM.ShowHomeView('sps_management');"
@@ -134,5 +173,5 @@ module Splinterland =
             pressKey Keys.Escape
             clickBySelector "#claim_btn_tron"
             pressKey Keys.Escape
-            sentSPSToUser transferDetails
+            sentSPS transferDetails
         |]

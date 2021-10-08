@@ -12,25 +12,27 @@ let getConfiguration (args: string array)  =
             config.GetSection("accounts").Get<UserConfig array>()
                 |> Array.map (fun userInfo -> TransferDetails.bind sentTo userInfo)
 
-let trasferUserResources transferDetails = 
-    let page = Splinterland.getPage() |> Async.RunSynchronously
-
+let transferResourceFromOneAccount page transferDetail = 
     [|
         Splinterland.loadSplinterlands()
-        Splinterland.login transferDetails
+        Splinterland.login transferDetail
         Splinterland.closePopUp()
-        Splinterland.transferDec transferDetails
-        Splinterland.transferSPS transferDetails
+        Splinterland.transferDec transferDetail
+        Splinterland.transferSPS transferDetail
         //Splinterland.transferCards
+        Splinterland.logout()
     |] |> Seq.concat |> Splinterland.runActions page
+
+let trasferUserResources transferDetails = 
+    let page = Splinterland.getPage() |> Async.RunSynchronously
     
-    Splinterland.close page
+    transferDetails
+    |> Array.iter (transferResourceFromOneAccount page)
+    
+    Splinterland.close page |> Async.RunSynchronously
 
 [<EntryPoint>]
 let main(args) =
-    let test =
-        getConfiguration args
-        |> Array.item 0
-    trasferUserResources test |> ignore
+    do getConfiguration args |> trasferUserResources
     printfn "Finished running SplinterBots"
     0
