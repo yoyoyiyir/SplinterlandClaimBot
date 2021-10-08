@@ -13,23 +13,15 @@ type Keys =
 
 type Context = Page
     
-let handleTaskOf (handle: Context -> Task<'a>)  (context: Context) =
+let private handleTaskOf handle  context =
     async {
         let! _ = handle context |> Async.AwaitTask
-        return ()
+        Support.waitForPageActions context
     }
-
-let handleTask (handle: Context -> Task) (context: Context) =
+let private handleTask (handle: Context -> Task) context =
     async {
         let! _ = handle context |> Async.AwaitTask
-        return ()
-    }
-
-let updateContextAsync handle (context: Context)=
-    async {
-        let! result = handle context |> Async.AwaitTask
-
-        return ()
+        Support.waitForPageActions context
     }
 
 let getBrowser headless = 
@@ -51,36 +43,21 @@ let getNewPage (browser: Async<Browser>) =
     }
 
 let closeBrowser (context: Context) =
-    async {
-        let! _ =  context.Browser.CloseAsync() |> Async.AwaitTask
-        return ()
-    }
+    context |> handleTask (fun ctx -> ctx.CloseAsync())
 
 let goTo url (context: Context) = 
-    async { 
-        let! _ = context.GoToAsync(url) |> Async.AwaitTask
-        return ()
-    }
-let setViewPortSize width height (context: Context) = 
-    async {
-        let viewportOptions = new ViewPortOptions (Width = width, Height = height)
-        let! _ = context.SetViewportAsync(viewportOptions) |> Async.AwaitTask
-        return ()
-    }
+    context |> handleTaskOf (fun ctx -> ctx.GoToAsync(url))
 
-let waitForPageToLoad (context: Context) =
-    async {
-        let options = new NavigationOptions (
-            WaitUntil = [| WaitUntilNavigation.Networkidle2 |])
-        let! _ = context.WaitForNavigationAsync(options) |> Async.AwaitTask
-        return ()
-    }
+let setViewPortSize width height (context: Context) = 
+    let options = new ViewPortOptions (Width = width, Height = height)
+    context |> handleTask (fun ctx -> ctx.SetViewportAsync(options))
 
 let clickBySelector selector (context: Context) =
     context |> handleTask (fun ctx -> ctx.ClickAsync(selector))
 
 let selectOptionBySelector selector optionName (context: Context) = 
-    context |> handleTaskOf (fun ctx -> ctx.SelectAsync(selector, [| String.toString optionName |]))
+    let values = [| String.toString optionName |]
+    context |> handleTaskOf (fun ctx -> ctx.SelectAsync(selector, values))
 
 let typeBySelector selector text (context: Context) =
     context |> handleTask (fun ctx -> ctx.TypeAsync(selector, text))
@@ -102,4 +79,3 @@ let evaluate javascript (context: Context) =
 
 let closeConfirmationDialogWhenAppear () =
     evaluate "window.confirm = () => true" 
-    //context |> handleTaskOf (fun ctx -> )
