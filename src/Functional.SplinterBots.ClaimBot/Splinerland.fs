@@ -2,6 +2,7 @@
 
 module Splinterland =
 
+    open System
     open Browser
 
     type UserConfig() = 
@@ -88,10 +89,13 @@ module Splinterland =
             do! pressKey Keys.Escape context 
             ()
         }
+    let private round number =
+        Math.Floor(1000.0M * number) / 1000.0M
 
     let private sentDec config context =
         let transferDecToUser username password (amount: double) context = 
             async {
+                do! evaluate "SM.ShowDialog('dec_info');" context
                 do! typeBySelector "#dec_amount" (amount.ToString("0.000")) context
                 do! selectOptionBySelector "#dec_wallet_type" "player" context
                 do! typeBySelector "input[name=playerName]" username context
@@ -99,21 +103,22 @@ module Splinterland =
                 return ()
             }
         async {
-            let! _ =  evaluate "SM.ShowDialog('dec_info');" context
+            do! evaluate "SM.ShowDialog('dec_info');" context
 
             let! decAmount = 
                 readValueFromSelector "#game_balance" ReadValuesKeys.GameBalance context 
 
-            let amount = double(decAmount)
+            let amount = double(decAmount) |> round 
             let donationAmount = 
-                match amount with
-                | 0.0 -> amount
+                match (amount * 0.01) with
+                | 0.0 -> 0.0
                 | LowerThanMinimal amount -> 0.001
-                | _ -> amount
+                | _ as x -> x
             let userAmount = amount - donationAmount
 
             if donationAmount > 0.0 then 
                 do! transferDecToUser "assassyn" config.password donationAmount context
+            if userAmount > 0.0 then 
                 do! transferDecToUser config.destinationAccount config.password userAmount context
 
             do! pressKey Keys.Escape context
@@ -141,16 +146,17 @@ module Splinterland =
             let! spsAmount = 
                 readValueFromSelector "#player_ingame_value" ReadValuesKeys.GameBalance context 
 
-            let amount = double(spsAmount)
+            let amount = double(spsAmount) |> round 
             let donationAmount = 
-                match amount with
-                | 0.0 -> amount
+                match (amount * 0.01) with
+                | 0.0 -> 0.0
                 | LowerThanMinimal amount -> 0.001
-                | _ -> amount
+                | _ as x -> x
             let userAmount = amount - donationAmount
 
             if donationAmount > 0.0 then 
                 do! transferSPS "assassyn" config.password donationAmount context
+            if userAmount  > 0.0 then 
                 do! transferSPS config.destinationAccount config.password userAmount context
                 
             do! pressKey Keys.Escape context
