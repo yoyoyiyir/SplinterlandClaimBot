@@ -3,6 +3,7 @@
 open Support
 open PuppeteerSharp
 open System.Threading.Tasks
+open System
 
 let DefaulWwaitTime = 100  * 0
 
@@ -42,7 +43,12 @@ let getNewPage (browser: Async<Browser>) =
         return page
     }
 
-let closeBrowser (context: Context) =
+let closeBrowser (context: Browser) =
+    async {
+        do!  context.CloseAsync() |> Async.AwaitTask
+    }
+
+let closePage (context: Context) =
     context |> handleTask (fun ctx -> ctx.CloseAsync())
 
 let goTo url (context: Context) = 
@@ -66,9 +72,9 @@ let readValueFromSelector selector propertyKey (context: Context) =
     async {
         let! value = context.WaitForSelectorAsync(selector) |> Async.AwaitTask
         let! valueInJson = value.EvaluateFunctionAsync("el => el.textContent") |> Async.AwaitTask
-        let value = valueInJson.ToString()
+        let result = valueInJson.ToString()
 
-        return value
+        return result
     }
 
 let pressKey (key: Keys) (context: Context) =
@@ -77,5 +83,12 @@ let pressKey (key: Keys) (context: Context) =
 let evaluate javascript (context: Context) =
     context |> handleTaskOf (fun ctx -> ctx.EvaluateExpressionAsync(javascript))
 
-let closeConfirmationDialogWhenAppear () =
-    evaluate "window.confirm = () => true" 
+let closeConfirmationDialogWhenAppear (context: Context) =
+    evaluate "window.confirm = () => true" context
+
+let waitForXSeconds timeout (context: Context) =
+    let timeoutInMiliseconds = int(TimeSpan.FromSeconds(timeout).TotalMilliseconds)
+    context |> handleTask ( fun ctx -> ctx.WaitForTimeoutAsync(timeoutInMiliseconds))
+
+let waitFor5Seconds (context: Context) =
+    waitForXSeconds 5.0 context

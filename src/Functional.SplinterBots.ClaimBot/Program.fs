@@ -12,16 +12,25 @@ let getConfiguration (args: string array)  =
             config.GetSection("accounts").Get<UserConfig array>()
                 |> Array.map (fun userInfo -> TransferDetails.bind sentTo userInfo)
 
+let private logToConsole user message context = 
+    async {
+        printfn "[%s]: %s - %s" (System.DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")) user message
+    }
+
 let transferResourceFromOneAccount page transferDetail = 
-    [|
-        Splinterland.loadSplinterlands()
-        Splinterland.login transferDetail
-        Splinterland.closePopUp()
-        Splinterland.transferDec transferDetail
-        Splinterland.transferSPS transferDetail
-        //Splinterland.transferCards
-        Splinterland.logout()
-    |] |> Seq.concat |> Splinterland.runActions page
+    let log = logToConsole transferDetail.username
+    try 
+        [|
+            Splinterland.loadSplinterlands()
+            Splinterland.login log transferDetail
+            Splinterland.closePopUp()
+            Splinterland.transferDec transferDetail
+            Splinterland.transferSPS transferDetail
+            //Splinterland.transferCards
+            Splinterland.logout()
+        |] |> Seq.concat |> Splinterland.runActions page
+    with 
+    | :? System.Exception as exp -> printfn $"{exp.Message}"
 
 let trasferUserResources transferDetails = 
     let page = Splinterland.getPage() |> Async.RunSynchronously
