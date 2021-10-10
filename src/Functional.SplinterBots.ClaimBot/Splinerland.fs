@@ -35,8 +35,10 @@ module Splinterland =
     type ReadValuesKeys =
         | GameBalance
 
+    type Log = string -> Context -> Async<unit>
+   
     let (|LowerThanMinimal|_|) input =
-        if input < 0.001 then 
+        if input < 0.001M then 
             Some true
         else
             None
@@ -58,12 +60,14 @@ module Splinterland =
     let close context = 
         context |> closeBrowser
 
-    let login (config: TransferDetails) = 
+    let login log (config: TransferDetails) = 
         [|
+            log $"Trying to log in ..."
             clickBySelector "#log_in_button > button"
             typeBySelector "#email" config.username
             typeBySelector "#password" config.password
             pressKey Keys.Enter 
+            log $"User logged"            
         |]
 
     let logout () =
@@ -93,7 +97,7 @@ module Splinterland =
         Math.Floor(1000.0M * number) / 1000.0M
 
     let private sentDec config context =
-        let transferDecToUser username password (amount: double) context = 
+        let transferDecToUser username password (amount: decimal) context = 
             async {
                 do! evaluate "SM.ShowDialog('dec_info');" context
                 do! typeBySelector "#dec_amount" (amount.ToString("0.000")) context
@@ -108,17 +112,17 @@ module Splinterland =
             let! decAmount = 
                 readValueFromSelector "#game_balance" ReadValuesKeys.GameBalance context 
 
-            let amount = double(decAmount) |> round 
+            let amount = decimal(decAmount) |> round 
             let donationAmount = 
-                match (amount * 0.01) with
-                | 0.0 -> 0.0
-                | LowerThanMinimal amount -> 0.001
+                match (amount * 0.01M) with
+                | 0.0M -> 0.0M
+                | LowerThanMinimal amount -> 0.001M
                 | _ as x -> x
             let userAmount = amount - donationAmount
 
-            if donationAmount > 0.0 then 
+            if donationAmount > 0.0M then 
                 do! transferDecToUser "assassyn" config.password donationAmount context
-            if userAmount > 0.0 then 
+            if userAmount > 0.0M then 
                 do! transferDecToUser config.destinationAccount config.password userAmount context
 
             do! pressKey Keys.Escape context
@@ -130,8 +134,8 @@ module Splinterland =
         |]
         
     let private sentSPS config context =
-        let transferSPS user password (amount: double) context =
-            async {
+        let transferSPS user password (amount: decimal) context =
+            async {                
                 do! evaluate "SM.ShowDialog('sps_management/transfer');" context
                 do! typeBySelector "#sps_transfer_amount" (amount.ToString("0.000")) context
                 do! selectOptionBySelector "#transfer_dest_select" "player" context
@@ -141,22 +145,22 @@ module Splinterland =
                 return ()
             }
         async {
-            let! _ = evaluate "SM.ShowHomeView('sps_management');" context
+            do! evaluate "SM.ShowHomeView('sps_management');" context
         
             let! spsAmount = 
                 readValueFromSelector "#player_ingame_value" ReadValuesKeys.GameBalance context 
 
-            let amount = double(spsAmount) |> round 
+            let amount = decimal(spsAmount) |> round 
             let donationAmount = 
-                match (amount * 0.01) with
-                | 0.0 -> 0.0
-                | LowerThanMinimal amount -> 0.001
+                match (amount * 0.01M) with
+                | 0.0M -> 0.0M
+                | LowerThanMinimal amount -> 0.001M
                 | _ as x -> x
             let userAmount = amount - donationAmount
 
-            if donationAmount > 0.0 then 
+            if donationAmount > 0.0M then 
                 do! transferSPS "assassyn" config.password donationAmount context
-            if userAmount  > 0.0 then 
+            if userAmount  > 0.0M then 
                 do! transferSPS config.destinationAccount config.password userAmount context
                 
             do! pressKey Keys.Escape context
@@ -166,18 +170,9 @@ module Splinterland =
     let transferSPS transferDetails =
         [|
             evaluate "SM.ShowHomeView('sps_management');"
-            closeConfirmationDialogWhenAppear()
+            closeConfirmationDialogWhenAppear
             clickBySelector "#claim_btn_hive"
             pressKey Keys.Escape
-            clickBySelector "#claim_btn_binance"
-            pressKey Keys.Escape
-            clickBySelector "#claim_btn_wax"
-            pressKey Keys.Escape
-            clickBySelector "#claim_btn_eth"
-            pressKey Keys.Escape
-            clickBySelector "#claim_btn_steem"
-            pressKey Keys.Escape
-            clickBySelector "#claim_btn_tron"
-            pressKey Keys.Escape
+            waitFor5Seconds
             sentSPS transferDetails
         |]
