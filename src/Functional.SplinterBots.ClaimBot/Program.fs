@@ -24,8 +24,8 @@ let transferResourceFromOneAccount page transferDetail =
             Splinterland.loadSplinterlands()
             Splinterland.login log transferDetail
             Splinterland.closePopUp()
-            Splinterland.transferDec transferDetail
-            Splinterland.transferSPS transferDetail
+            Splinterland.transferDec log transferDetail
+            Splinterland.transferSPS log transferDetail
             //Splinterland.transferCards
             Splinterland.logout()
         |] |> Seq.concat |> Splinterland.runActions page
@@ -38,7 +38,7 @@ let trasferUserResources transferDetails =
     transferDetails
     |> Array.iter (transferResourceFromOneAccount page)
     
-    Splinterland.close page |> Async.RunSynchronously
+    Splinterland.close page.Browser |> Async.RunSynchronously
 
 [<EntryPoint>]
 let main(args) =
