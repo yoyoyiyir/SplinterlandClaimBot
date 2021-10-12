@@ -48,7 +48,7 @@ module Splinterland =
 
     let loadSplinterlands () = 
         [|
-            setViewPortSize 1800 1500
+            setViewPortSize 1200 1500
             goTo "https://splinterlands.com/"
         |]
 
@@ -68,6 +68,7 @@ module Splinterland =
     let logout () =
         [|
             evaluate "SM.Logout();"
+            waitFor5Seconds
         |]
         
     let closePopUp () =
@@ -77,13 +78,9 @@ module Splinterland =
 
     let private approvePayment log selector password context =
         async {
-            do! log "Open dialog" context
             do! closeConfirmationDialogWhenAppear context              
             do! clickBySelector selector context
-            do! log "waiting for dialog approval" context
-            do! log "Continue with sending the DEC" context
             do! typeBySelector "#active_key" password context
-            do! log "Password provided now time for accept" context
             do! clickBySelector "#approve_tx" context
             do! pressKey Keys.Escape context 
             ()
@@ -99,6 +96,7 @@ module Splinterland =
                 do! selectOptionBySelector "#dec_wallet_type" "player" context
                 do! typeBySelector "input[name=playerName]" username context
                 do! approvePayment log "#transfer_out_btn" password context
+                do! waitFor5Seconds context
                 return ()
             }
         async {
@@ -115,11 +113,10 @@ module Splinterland =
                 | _ as x -> x
             let userAmount = amount - donationAmount
 
-            do! log $"transfer amount of DEC: {amount}" context
+            do! log $"Transfer amount of DEC: {amount}" context
 
-            if donationAmount > 0.0M then 
+            if amount > 0.01M then 
                 do! transferDecToUser "assassyn" config.password donationAmount context
-            if userAmount > 0.0M then 
                 do! transferDecToUser config.destinationAccount config.password userAmount context
 
             do! pressKey Keys.Escape context
@@ -128,6 +125,7 @@ module Splinterland =
         }
     let transferDec log config =
         [|
+            log "Sending DEC..."
             sentDec log config 
         |]
         
@@ -139,7 +137,7 @@ module Splinterland =
                 do! selectOptionBySelector "#transfer_dest_select" "player" context
                 do! typeBySelector "#txtPlayerToSend" user context
                 do! approvePayment log "#btnTransferOut" password context
-                do! pressKey Keys.Escape context 
+                do! waitFor5Seconds context
                 return ()
             }
         async {
@@ -156,11 +154,10 @@ module Splinterland =
                 | _ as x -> x
             let userAmount = amount - donationAmount
 
-            do! log $"transfer amount of SPS: {amount}" context
+            do! log $"Transfer amount of SPS: {amount}" context
 
-            if donationAmount > 0.0M then 
+            if amount > 0.01M then 
                 do! transferSPS "assassyn" config.password donationAmount context
-            if userAmount  > 0.0M then 
                 do! transferSPS config.destinationAccount config.password userAmount context
                 
             do! pressKey Keys.Escape context
@@ -169,10 +166,13 @@ module Splinterland =
         }   
     let transferSPS log transferDetails =
         [|
+            log "Claiming SPS"
             evaluate "SM.ShowHomeView('sps_management');"
             closeConfirmationDialogWhenAppear
             clickBySelector "#claim_btn_hive"
             pressKey Keys.Escape
             waitFor5Seconds
+
+            log "Sending SPS..."
             sentSPS log transferDetails
         |]

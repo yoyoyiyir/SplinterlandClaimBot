@@ -5,7 +5,7 @@ open PuppeteerSharp
 open System.Threading.Tasks
 open System
 
-let DefaulWwaitTime = 100  * 0
+let DefaulWwaitTime = 500  * 0
 
 type Keys =
     | Enter
@@ -14,7 +14,7 @@ type Keys =
 
 type Context = Page
     
-let private handleTaskOf handle  context =
+let private handleTaskOf handle context =
     async {
         let! _ = handle context |> Async.AwaitTask
         Support.waitForPageActions context
@@ -22,6 +22,18 @@ let private handleTaskOf handle  context =
 let private handleTask (handle: Context -> Task) context =
     async {
         let! _ = handle context |> Async.AwaitTask
+        Support.waitForPageActions context
+    }
+let private handleTaskOfWithSelector selector handle (context: Context) =
+    async {
+        let! element = context.WaitForSelectorAsync(selector) |> Async.AwaitTask
+        let! _ = handle element |> Async.AwaitTask
+        Support.waitForPageActions context
+    }
+let private handleTaskWithSelector selector (handle: ElementHandle -> Task) (context: Context) =
+    async {
+        let! element = context.WaitForSelectorAsync(selector) |> Async.AwaitTask
+        do! handle element |> Async.AwaitTask
         Support.waitForPageActions context
     }
 
@@ -59,14 +71,14 @@ let setViewPortSize width height (context: Context) =
     context |> handleTask (fun ctx -> ctx.SetViewportAsync(options))
 
 let clickBySelector selector (context: Context) =
-    context |> handleTask (fun ctx -> ctx.ClickAsync(selector))
+    context |> handleTaskWithSelector selector (fun ctx -> ctx.ClickAsync())
 
 let selectOptionBySelector selector optionName (context: Context) = 
     let values = [| String.toString optionName |]
-    context |> handleTaskOf (fun ctx -> ctx.SelectAsync(selector, values))
+    context |> handleTaskOfWithSelector selector (fun ctx -> ctx.SelectAsync(values))
 
 let typeBySelector selector text (context: Context) =
-    context |> handleTask (fun ctx -> ctx.TypeAsync(selector, text))
+    context |> handleTaskWithSelector selector (fun ctx -> ctx.TypeAsync(text))
 
 let readValueFromSelector selector propertyKey (context: Context) = 
     async {
