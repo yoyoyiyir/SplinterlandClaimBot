@@ -1,23 +1,17 @@
-﻿open Microsoft.Extensions.Configuration
-open Functional.SplinterBots
-open Functional.SplinterBots.Splinterland
-
-let getConfiguration (args: string array)  =
-    new ConfigurationBuilder()
-        |> fun config -> JsonConfigurationExtensions.AddJsonFile(config, "config.json")
-        |> fun config -> CommandLineConfigurationExtensions.AddCommandLine(config, args)
-        |> fun config -> config.Build()
-        |> fun config -> 
-            let sentTo = config.GetValue<string>("sentTo")
-            config.GetSection("accounts").Get<UserConfig array>()
-                |> Array.map (fun userInfo -> TransferDetails.bind sentTo userInfo)
+﻿open Functional.SplinterBots
+open Config 
 
 let private logToConsole user message context = 
     async {
         printfn "[%s]: %s - %s" (System.DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")) user message
     }
 
-let transferResourceFromOneAccount page transferDetail = 
+//let private runIfConfigAllows shouldRun actions =
+//    match shouldRun with 
+//    | true -> actions
+//    | _ -> [||]
+
+let transferResourceFromOneAccount page transferCards claimWeekly claimSeason transferDetail= 
     let log = logToConsole transferDetail.username
     try 
         [|
@@ -26,22 +20,27 @@ let transferResourceFromOneAccount page transferDetail =
             Splinterland.closePopUp()
             Splinterland.transferDec log transferDetail
             Splinterland.transferSPS log transferDetail
-            //Splinterland.transferCards
+            //runIfConfigAllows transferCards (Splinterland.transferCards)
+            //runIfConfigAllows claimWeekly (Splinterland.claimWeeklyRewards)
+            //runIfConfigAllows claimSeason (Splinterland.claimSeasonRewards)
             Splinterland.logout()
         |] |> Seq.concat |> Splinterland.runActions page
     with 
     | :? System.Exception as exp -> printfn $"{exp.Message}"
 
-let trasferUserResources transferDetails = 
-    let page = Splinterland.getPage() |> Async.RunSynchronously
+let trasferUserResources config = 
+    let page = Splinterland.getPage config.browser.headless |> Async.RunSynchronously
+    let transferResources = 
+        transferResourceFromOneAccount page config.sentCards config.claimWeeklyReward config.claimSeasonReward
     
-    transferDetails
-    |> Array.iter (transferResourceFromOneAccount page)
+    config.transferDetails
+    |> Array.iter transferResources
     
     Splinterland.close page.Browser |> Async.RunSynchronously
 
 [<EntryPoint>]
 let main(args) =
-    do getConfiguration args |> trasferUserResources
+    let config = Config.getConfiguration args
+    trasferUserResources config
     printfn "Finished running SplinterBots"
     0

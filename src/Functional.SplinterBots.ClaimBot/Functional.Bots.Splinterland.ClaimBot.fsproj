@@ -19,6 +19,7 @@
     <Content Include="config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Compile Include="SplinterlandConfig.fs" />
     <Compile Include="Splinerland.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
