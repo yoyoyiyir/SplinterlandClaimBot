@@ -3,8 +3,9 @@
 open Support
 open PuppeteerSharp
 open System.Threading.Tasks
+open System
 
-let DefaulWwaitTime = 100  * 0
+let DefaulWwaitTime = 500  * 0
 
 type Keys =
     | Enter
@@ -13,7 +14,7 @@ type Keys =
 
 type Context = Page
     
-let private handleTaskOf handle  context =
+let private handleTaskOf handle context =
     async {
         let! _ = handle context |> Async.AwaitTask
         Support.waitForPageActions context
@@ -21,6 +22,18 @@ let private handleTaskOf handle  context =
 let private handleTask (handle: Context -> Task) context =
     async {
         let! _ = handle context |> Async.AwaitTask
+        Support.waitForPageActions context
+    }
+let private handleTaskOfWithSelector selector handle (context: Context) =
+    async {
+        let! element = context.WaitForSelectorAsync(selector) |> Async.AwaitTask
+        let! _ = handle element |> Async.AwaitTask
+        Support.waitForPageActions context
+    }
+let private handleTaskWithSelector selector (handle: ElementHandle -> Task) (context: Context) =
+    async {
+        let! element = context.WaitForSelectorAsync(selector) |> Async.AwaitTask
+        do! handle element |> Async.AwaitTask
         Support.waitForPageActions context
     }
 
@@ -42,7 +55,12 @@ let getNewPage (browser: Async<Browser>) =
         return page
     }
 
-let closeBrowser (context: Context) =
+let closeBrowser (context: Browser) =
+    async {
+        do!  context.CloseAsync() |> Async.AwaitTask
+    }
+
+let closePage (context: Context) =
     context |> handleTask (fun ctx -> ctx.CloseAsync())
 
 let goTo url (context: Context) = 
@@ -53,22 +71,22 @@ let setViewPortSize width height (context: Context) =
     context |> handleTask (fun ctx -> ctx.SetViewportAsync(options))
 
 let clickBySelector selector (context: Context) =
-    context |> handleTask (fun ctx -> ctx.ClickAsync(selector))
+    context |> handleTaskWithSelector selector (fun ctx -> ctx.ClickAsync())
 
 let selectOptionBySelector selector optionName (context: Context) = 
     let values = [| String.toString optionName |]
-    context |> handleTaskOf (fun ctx -> ctx.SelectAsync(selector, values))
+    context |> handleTaskOfWithSelector selector (fun ctx -> ctx.SelectAsync(values))
 
 let typeBySelector selector text (context: Context) =
-    context |> handleTask (fun ctx -> ctx.TypeAsync(selector, text))
+    context |> handleTaskWithSelector selector (fun ctx -> ctx.TypeAsync(text))
 
 let readValueFromSelector selector propertyKey (context: Context) = 
     async {
         let! value = context.WaitForSelectorAsync(selector) |> Async.AwaitTask
         let! valueInJson = value.EvaluateFunctionAsync("el => el.textContent") |> Async.AwaitTask
-        let value = valueInJson.ToString()
+        let result = valueInJson.ToString()
 
-        return value
+        return result
     }
 
 let pressKey (key: Keys) (context: Context) =
@@ -77,5 +95,12 @@ let pressKey (key: Keys) (context: Context) =
 let evaluate javascript (context: Context) =
     context |> handleTaskOf (fun ctx -> ctx.EvaluateExpressionAsync(javascript))
 
-let closeConfirmationDialogWhenAppear () =
-    evaluate "window.confirm = () => true" 
+let closeConfirmationDialogWhenAppear (context: Context) =
+    evaluate "window.confirm = () => true" context
+
+let waitForXSeconds timeout (context: Context) =
+    let timeoutInMiliseconds = int(TimeSpan.FromSeconds(timeout).TotalMilliseconds)
+    context |> handleTask ( fun ctx -> ctx.WaitForTimeoutAsync(timeoutInMiliseconds))
+
+let waitFor5Seconds (context: Context) =
+    waitForXSeconds 5.0 context
