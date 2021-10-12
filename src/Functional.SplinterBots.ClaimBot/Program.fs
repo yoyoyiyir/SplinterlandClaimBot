@@ -6,10 +6,10 @@ let private logToConsole user message context =
         printfn "[%s]: %s - %s" (System.DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")) user message
     }
 
-let private runIfConfigAllows shouldRun actions =
-    match shouldRun with 
-    | true -> actions
-    | _ -> [||]
+//let private runIfConfigAllows shouldRun actions =
+//    match shouldRun with 
+//    | true -> actions
+//    | _ -> [||]
 
 let transferResourceFromOneAccount page transferCards claimWeekly claimSeason transferDetail= 
     let log = logToConsole transferDetail.username
