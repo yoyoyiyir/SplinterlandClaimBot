@@ -39,7 +39,7 @@ module Splinterland =
             None
 
     let getPage () =
-        getBrowser false
+        getBrowser true
         |> getNewPage
 
     let runActions (page:Context) (actions: seq<Context -> Async<'a>>)  =
