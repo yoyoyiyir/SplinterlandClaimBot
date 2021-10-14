@@ -1,6 +1,7 @@
 ﻿namespace Functional.SplinterBots
 
 open Microsoft.Extensions.Configuration
+open Microsoft.Extensions.Configuration.UserSecrets
 
 module Config = 
 
@@ -38,24 +39,26 @@ module Config =
             transferDetails: TransferDetails array
         }
 
+    let test: UserSecretsIdAttribute = new UserSecretsIdAttribute("")
+
     let getConfiguration (args: string array)  =
-        new ConfigurationBuilder()
-            |> fun config -> JsonConfigurationExtensions.AddJsonFile(config, "config.json")
-            |> fun config -> CommandLineConfigurationExtensions.AddCommandLine(config, args)
+        let builder  = 
+            new ConfigurationBuilder()
+                |> fun config -> config.AddJsonFile "config.json"
+                |> fun config -> config.AddCommandLine args
+        let intermediate  = builder.Build()
+        builder
+            |> fun config -> config.AddUserSecrets(intermediate.["userSecretId"])
             |> fun config -> config.Build()
             |> fun config -> 
-                let browserSettings = config.GetSection("browser").Get<Browser>()
-                let sentCards = config.GetValue<bool>("sentCards")
-                let claimWeeklyReward = config.GetValue<bool>("claimWeeklyReward")
-                let claimSeasonReward = config.GetValue<bool>("claimSeasonReward")                
                 let transferSettigs = 
                     let sentTo = config.GetValue<string>("sentTo")
                     config.GetSection("accounts").Get<UserConfig array>()
                     |> Array.map (fun userInfo -> TransferDetails.bind sentTo userInfo)
                 {
-                    browser = browserSettings
-                    sentCards = sentCards
-                    claimWeeklyReward = claimWeeklyReward
-                    claimSeasonReward = claimSeasonReward
+                    browser = config.GetSection("browser").Get<Browser>()
+                    sentCards = config.GetValue<bool> "sentCards"
+                    claimWeeklyReward = config.GetValue<bool> "claimWeeklyReward" 
+                    claimSeasonReward = config.GetValue<bool> "claimSeasonReward"
                     transferDetails = transferSettigs
                 }

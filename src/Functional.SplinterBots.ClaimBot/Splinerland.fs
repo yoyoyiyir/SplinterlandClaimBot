@@ -6,58 +6,6 @@ module Splinterland =
     open Browser
     open Config
 
-    type UserConfig() = 
-        member val username = "" with get,set
-        member val password = "" with get,set
-
-    type DestinationAccountName = string
-    type Username = string
-    type Password = string
-
-    type TransferDetails = 
-        {
-            destinationAccount: DestinationAccountName 
-            username: Username 
-            password: Password
-        }
-    module TransferDetails = 
-        let bind destinationAccount (loginDetails: UserConfig) = 
-            {
-                destinationAccount = destinationAccount
-                username = loginDetails.username
-                password = loginDetails.password
-            }
-
-    type SplinterLandConfiguration = 
-        {
-            accounts: TransferDetails array
-        }
-
-    type SplinterLandConfiguration = 
-        {
-            accounts: TransferDetails array
-        }
-
-    type SplinterLandConfiguration = 
-        {
-            accounts: TransferDetails array
-        }
-
-    type SplinterLandConfiguration = 
-        {
-            accounts: TransferDetails array
-        }
-
-    type SplinterLandConfiguration = 
-        {
-            accounts: TransferDetails array
-        }
-
-    type SplinterLandConfiguration = 
-        {
-            accounts: TransferDetails array
-        }
-
     type ReadValuesKeys =
         | GameBalance
 
@@ -69,8 +17,8 @@ module Splinterland =
         else
             None
 
-    let getPage () =
-        getBrowser false
+    let getPage headless =
+        getBrowser headless
         |> getNewPage
 
     let runActions (page:Context) (actions: seq<Context -> Async<'a>>)  =

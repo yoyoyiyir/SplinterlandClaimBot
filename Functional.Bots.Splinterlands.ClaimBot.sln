@@ -7,19 +7,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{54437566-C6E
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Functional.Bots.Browser", "src\Functional.Bots.Browser\Functional.Bots.Browser.fsproj", "{063C6B23-5D7A-4199-9872-CCFA14E3F8A0}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Functional.Bots.Splinterland.ClaimBot", "src\Functional.SplinterBots.ClaimBOt\Functional.Bots.Splinterland.ClaimBot.fsproj", "{4DA80795-C454-4030-8944-3D036B168EDE}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E1873CD9-0E49-47E7-AB62-AD4695952FCD}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github", "github", "{B6FEC976-458B-41D1-A773-698D57E77DF8}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{E62C5BA9-D247-423A-A0D1-D155C1E8E050}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{293167B6-2043-4487-9518-2FB78F76FEA4}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
+		.build\devops.yml = .build\devops.yml
 	EndProjectSection
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "ClaimBot", "src\Functional.SplinterBots.ClaimBot\ClaimBot.fsproj", "{21CA4ACF-B45F-4DFB-8D6B-F14B21998848}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,19 +30,18 @@ Global
 		{063C6B23-5D7A-4199-9872-CCFA14E3F8A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{063C6B23-5D7A-4199-9872-CCFA14E3F8A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{063C6B23-5D7A-4199-9872-CCFA14E3F8A0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4DA80795-C454-4030-8944-3D036B168EDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4DA80795-C454-4030-8944-3D036B168EDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4DA80795-C454-4030-8944-3D036B168EDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4DA80795-C454-4030-8944-3D036B168EDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21CA4ACF-B45F-4DFB-8D6B-F14B21998848}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21CA4ACF-B45F-4DFB-8D6B-F14B21998848}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21CA4ACF-B45F-4DFB-8D6B-F14B21998848}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21CA4ACF-B45F-4DFB-8D6B-F14B21998848}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{063C6B23-5D7A-4199-9872-CCFA14E3F8A0} = {54437566-C6E5-4F50-ABC0-8310C23E7347}
-		{4DA80795-C454-4030-8944-3D036B168EDE} = {54437566-C6E5-4F50-ABC0-8310C23E7347}
-		{B6FEC976-458B-41D1-A773-698D57E77DF8} = {E1873CD9-0E49-47E7-AB62-AD4695952FCD}
-		{E62C5BA9-D247-423A-A0D1-D155C1E8E050} = {B6FEC976-458B-41D1-A773-698D57E77DF8}
+		{293167B6-2043-4487-9518-2FB78F76FEA4} = {E1873CD9-0E49-47E7-AB62-AD4695952FCD}
+		{21CA4ACF-B45F-4DFB-8D6B-F14B21998848} = {54437566-C6E5-4F50-ABC0-8310C23E7347}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C8989DB1-14F8-41EF-B8FC-B5DC625780BE}

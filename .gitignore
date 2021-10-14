@@ -350,3 +350,4 @@ MigrationBackup/
 .ionide/
 
 /src/Functional.SplinterBots.ClaimBot/config.json
+/published
