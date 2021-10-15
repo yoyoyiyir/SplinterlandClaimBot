@@ -6,14 +6,10 @@ let private logToConsole user message context =
         printfn "[%s]: %s - %s" (System.DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")) user message
     }
 
-//let private runIfConfigAllows shouldRun actions =
-//    match shouldRun with 
-//    | true -> actions
-//    | _ -> [||]
-
-let transferResourceFromOneAccount page transferCards claimWeekly claimSeason transferDetail= 
+let transferResourceFromOneAccount config transferDetail= 
     let log = logToConsole transferDetail.username
     try 
+        let page = Splinterland.getPage config.browser.headless |> Async.RunSynchronously
         [|
             Splinterland.loadSplinterlands()
             Splinterland.login log transferDetail
@@ -24,19 +20,17 @@ let transferResourceFromOneAccount page transferCards claimWeekly claimSeason tr
             //runIfConfigAllows claimWeekly (Splinterland.claimWeeklyRewards)
             //runIfConfigAllows claimSeason (Splinterland.claimSeasonRewards)
             Splinterland.logout()
+            Splinterland.close()
         |] |> Seq.concat |> Splinterland.runActions page
     with 
     | :? System.Exception as exp -> printfn $"{exp.Message}"
 
 let trasferUserResources config = 
-    let page = Splinterland.getPage config.browser.headless |> Async.RunSynchronously
     let transferResources = 
-        transferResourceFromOneAccount page config.sentCards config.claimWeeklyReward config.claimSeasonReward
+        transferResourceFromOneAccount config
     
     config.transferDetails
     |> Array.iter transferResources
-    
-    Splinterland.close page.Browser |> Async.RunSynchronously
 
 [<EntryPoint>]
 let main(args) =

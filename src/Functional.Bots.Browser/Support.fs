@@ -1,26 +1,11 @@
 ﻿module Support
 
+open Types
 open PuppeteerSharp
-
-let inline notNull value = not (obj.ReferenceEquals(value, null))
-let defaultWaitTime = 10 * 100
-
-let (|NotNull|_|) value = 
-  if obj.ReferenceEquals(value, null) then None 
-  else Some()
-
-let whenElementExists selector (existHandler: ElementHandle -> Async<unit>) (page: Page) =
-    async {
-        let! element = page.QuerySelectorAsync(selector) |> Async.AwaitTask
-
-        match element with
-        | NotNull -> 
-            let! _ = existHandler element
-            ()
-        | _ -> ()
-    }
+open System.Threading.Tasks
 
 let waitForPageActions (page: Page) = 
+    let defaultWaitTime = 10 * 100
     page.WaitForTimeoutAsync(defaultWaitTime) 
     |> Async.AwaitTask 
     |> Async.RunSynchronously
@@ -28,3 +13,26 @@ let waitForPageActions (page: Page) =
 module String =
     let toString item =
         item.ToString()
+
+let handleTaskOf handle context =
+   async {
+       let! _ = handle context |> Async.AwaitTask
+       waitForPageActions context
+   }
+let handleTask (handle: Context -> Task) context =
+   async {
+       let! _ = handle context |> Async.AwaitTask
+       waitForPageActions context
+   }
+let handleTaskOfWithSelector selector handle (context: Context) =
+   async {
+       let! element = context.WaitForSelectorAsync(selector) |> Async.AwaitTask
+       let! _ = handle element |> Async.AwaitTask
+       waitForPageActions context
+   }
+let handleTaskWithSelector selector (handle: ElementHandle -> Task) (context: Context) =
+   async {
+       let! element = context.WaitForSelectorAsync(selector) |> Async.AwaitTask
+       do! handle element |> Async.AwaitTask
+       waitForPageActions context
+   }

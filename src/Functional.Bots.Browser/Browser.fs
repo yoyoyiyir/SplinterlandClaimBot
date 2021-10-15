@@ -1,41 +1,9 @@
 ﻿module Browser
 
 open Support
+open Types
 open PuppeteerSharp
-open System.Threading.Tasks
 open System
-
-let DefaulWwaitTime = 500  * 0
-
-type Keys =
-    | Enter
-    | Escape
-    | Tab
-
-type Context = Page
-    
-let private handleTaskOf handle context =
-    async {
-        let! _ = handle context |> Async.AwaitTask
-        Support.waitForPageActions context
-    }
-let private handleTask (handle: Context -> Task) context =
-    async {
-        let! _ = handle context |> Async.AwaitTask
-        Support.waitForPageActions context
-    }
-let private handleTaskOfWithSelector selector handle (context: Context) =
-    async {
-        let! element = context.WaitForSelectorAsync(selector) |> Async.AwaitTask
-        let! _ = handle element |> Async.AwaitTask
-        Support.waitForPageActions context
-    }
-let private handleTaskWithSelector selector (handle: ElementHandle -> Task) (context: Context) =
-    async {
-        let! element = context.WaitForSelectorAsync(selector) |> Async.AwaitTask
-        do! handle element |> Async.AwaitTask
-        Support.waitForPageActions context
-    }
 
 let getBrowser headless = 
     async {
@@ -101,6 +69,7 @@ let closeConfirmationDialogWhenAppear (context: Context) =
 let waitForXSeconds timeout (context: Context) =
     let timeoutInMiliseconds = int(TimeSpan.FromSeconds(timeout).TotalMilliseconds)
     context |> handleTask ( fun ctx -> ctx.WaitForTimeoutAsync(timeoutInMiliseconds))
-
 let waitFor5Seconds (context: Context) =
     waitForXSeconds 5.0 context
+let waitForASecond (context: Context) =
+    waitForXSeconds 1.0 context

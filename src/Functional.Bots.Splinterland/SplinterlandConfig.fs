@@ -1,30 +1,34 @@
 ﻿namespace Functional.SplinterBots
 
-open Microsoft.Extensions.Configuration
-open Microsoft.Extensions.Configuration.UserSecrets
-
 module Config = 
+
+    open Microsoft.Extensions.Configuration
+    open Microsoft.Extensions.Configuration.UserSecrets
 
     type DestinationAccountName = string
     type Username = string
-    type Password = string
+    type PostingKey = string
+    type ActiveKey = string
     
     type UserConfig () = 
         member val username = "" with get,set
-        member val masterPassword = "" with get,set
+        member val postingKey = "" with get,set
+        member val activeKey = "" with get,set
 
     type TransferDetails = 
        {
            destinationAccount: DestinationAccountName 
            username: Username 
-           password: Password
+           activeKey: ActiveKey
+           postingKey: PostingKey
        }
     module TransferDetails = 
         let bind destinationAccount (loginDetails: UserConfig) = 
            {
                destinationAccount = destinationAccount
                username = loginDetails.username
-               password = loginDetails.masterPassword
+               activeKey = loginDetails.activeKey
+               postingKey = loginDetails.postingKey
            }
 
     type Browser () = 

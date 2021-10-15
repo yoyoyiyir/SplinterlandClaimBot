@@ -2,7 +2,6 @@
 
 module Splinterland =
 
-    open System
     open Browser
     open Config
 
@@ -10,12 +9,8 @@ module Splinterland =
         | GameBalance
 
     type Log = string -> Context -> Async<unit>
-   
-    let (|LowerThanMinimal|_|) input =
-        if input < 0.001M then 
-            Some true
-        else
-            None
+
+    let donateAccountName = "splinterbots"
 
     let getPage headless =
         getBrowser headless
@@ -31,15 +26,18 @@ module Splinterland =
             goTo "https://splinterlands.com/"
         |]
 
-    let close context = 
-        context |> closeBrowser
+    let close () = 
+        let closeBorwser (context: Context) = context.Browser |> closeBrowser
+        [|
+            closeBorwser
+        |]
 
     let login log (config: TransferDetails) = 
         [|
             log $"Trying to log in ..."
             clickBySelector "#log_in_button > button"
             typeBySelector "#email" config.username
-            typeBySelector "#password" config.password
+            typeBySelector "#password" config.postingKey
             pressKey Keys.Enter 
             log $"User logged"            
         |]
@@ -64,39 +62,35 @@ module Splinterland =
             do! pressKey Keys.Escape context 
             ()
         }
-    let private round number =
-        Math.Floor(1000.0M * number) / 1000.0M
 
     let private sentDec log config context =
         let transferDecToUser username password (amount: decimal) context = 
             async {
                 do! evaluate "SM.ShowDialog('dec_info');" context
+                do! waitForASecond context
                 do! typeBySelector "#dec_amount" (amount.ToString("0.000")) context
                 do! selectOptionBySelector "#dec_wallet_type" "player" context
                 do! typeBySelector "input[name=playerName]" username context
                 do! approvePayment log "#transfer_out_btn" password context
-                do! waitFor5Seconds context
+                do! waitForASecond context
                 return ()
             }
         async {
             do! evaluate "SM.ShowDialog('dec_info');" context
 
-            let! decAmount = 
-                readValueFromSelector "#game_balance" ReadValuesKeys.GameBalance context 
+            let! result = readValueFromSelector "#game_balance" ReadValuesKeys.GameBalance context 
+            let donationAmount, userAmount = result |> SplinterBotsMath.calculateAmounts
 
-            let amount = decimal(decAmount) |> round 
-            let donationAmount = 
-                match (amount * 0.01M) with
-                | 0.0M -> 0.0M
-                | LowerThanMinimal amount -> 0.001M
-                | _ as x -> x
-            let userAmount = amount - donationAmount
+            if donationAmount > 0.01M then 
+                do! log $"Transfering DEC" context
 
-            do! log $"Transfer amount of DEC: {amount}" context
+                do! log $"Sent creator donation of {donationAmount} DEC" context
+                do! transferDecToUser donateAccountName config.activeKey donationAmount context
 
-            if amount > 0.01M then 
-                do! transferDecToUser "assassyn" config.password donationAmount context
-                do! transferDecToUser config.destinationAccount config.password userAmount context
+                do! log $"Sent credits to main account of {userAmount} DEC" context
+                do! transferDecToUser config.destinationAccount config.activeKey userAmount context
+            else
+                do! log "Amount is zero no transfer today" context
 
             do! pressKey Keys.Escape context
             
@@ -104,41 +98,41 @@ module Splinterland =
         }
     let transferDec log config =
         [|
-            log "Sending DEC..."
+            log "Checking DEC"
             sentDec log config 
+            log "Transfer all applicable DEC"
         |]
         
     let private sentSPS log config context =
         let transferSPS user password (amount: decimal) context =
             async {                
                 do! evaluate "SM.ShowDialog('sps_management/transfer');" context
+                do! waitForASecond context
                 do! typeBySelector "#sps_transfer_amount" (amount.ToString("0.000")) context
                 do! selectOptionBySelector "#transfer_dest_select" "player" context
                 do! typeBySelector "#txtPlayerToSend" user context
                 do! approvePayment log "#btnTransferOut" password context
-                do! waitFor5Seconds context
+                do! waitForASecond context
                 return ()
             }
         async {
             do! evaluate "SM.ShowHomeView('sps_management');" context
         
-            let! spsAmount = 
+            let! result = 
                 readValueFromSelector "#player_ingame_value" ReadValuesKeys.GameBalance context 
+            let donationAmount, userAmount = result |> SplinterBotsMath.calculateAmounts
 
-            let amount = decimal(spsAmount) |> round 
-            let donationAmount = 
-                match (amount * 0.01M) with
-                | 0.0M -> 0.0M
-                | LowerThanMinimal amount -> 0.001M
-                | _ as x -> x
-            let userAmount = amount - donationAmount
+            if donationAmount > 0.01M then 
+                do! log $"Transfering SPS" context
 
-            do! log $"Transfer amount of SPS: {amount}" context
-
-            if amount > 0.01M then 
-                do! transferSPS "assassyn" config.password donationAmount context
-                do! transferSPS config.destinationAccount config.password userAmount context
+                do! log $"Sent creator donation of {donationAmount} SPS" context
+                do! transferSPS donateAccountName config.activeKey donationAmount context
                 
+                do! log $"Sent credits to main account of {userAmount} SPS" context
+                do! transferSPS config.destinationAccount config.activeKey userAmount context
+            else
+                do! log "Amount is zero no transfer today" context
+            
             do! pressKey Keys.Escape context
 
             return ()
@@ -150,8 +144,10 @@ module Splinterland =
             closeConfirmationDialogWhenAppear
             clickBySelector "#claim_btn_hive"
             pressKey Keys.Escape
-            waitFor5Seconds
+            log "All SPS claimed"
+            waitForASecond
 
-            log "Sending SPS..."
+            log "Checking SPS"
             sentSPS log transferDetails
+            log "Transfer all applicable SPS"
         |]
