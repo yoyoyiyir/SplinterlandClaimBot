@@ -3,4 +3,4 @@ A simple claiming bot for splinterlands. It's role is claim DEC, SPS and Cards a
 
 
 # Build status
-[![Build Status](https://dev.azure.com/be-functional/Splinterbots/_apis/build/status/ClaimBot?branchName=task%2F1-add-build-steps)](https://dev.azure.com/be-functional/Splinterbots/_build/latest?definitionId=45&branchName=task%2F1-add-build-steps)
+[![Build Status](https://dev.azure.com/be-functional/Splinterbots/_apis/build/status/ClaimBot?branchName=master)](https://dev.azure.com/be-functional/Splinterbots/_build/latest?definitionId=46&branchName=master)
