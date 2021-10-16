@@ -4,6 +4,7 @@ module Splinterland =
 
     open Browser
     open Config
+    open Types
 
     type ReadValuesKeys =
         | GameBalance

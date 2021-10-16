@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Functional.SplinterBots.ClaimBot\ClaimBot.fsproj" />
+    <ProjectReference Include="..\..\src\Functional.SplinterBots.ClaimBot\InventoryTransferBot.fsproj" />
   </ItemGroup>
 
 </Project>
