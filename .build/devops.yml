@@ -57,7 +57,7 @@ stages:
             inputs:
               command: 'publish'
               publishWebProjects: false
-              projects: 'src/Functional.SplinterBots.ClaimBot/ClaimBot.fsproj'
+              projects: 'src/Functional.SplinterBots.ClaimBot/InventoryTransferBot.fsproj'
               arguments: '-c Release --self-contained -o $(Build.BinariesDirectory)/linux-arm -r "linux-arm64"'
               zipAfterPublish: false
           - task: DeleteFiles@1
@@ -95,7 +95,7 @@ stages:
             inputs:
               command: 'publish'
               publishWebProjects: false
-              projects: 'src/Functional.SplinterBots.ClaimBot/ClaimBot.fsproj'
+              projects: 'src/Functional.SplinterBots.ClaimBot/InventoryTransferBot.fsproj'
               arguments: '-c Release --self-contained -o $(Build.BinariesDirectory)/linux -r "linux-x64"'
               zipAfterPublish: false
           - task: DeleteFiles@1
@@ -128,7 +128,7 @@ stages:
             inputs:
               command: 'publish'
               publishWebProjects: false
-              projects: 'src/Functional.SplinterBots.ClaimBot/ClaimBot.fsproj'
+              projects: 'src/Functional.SplinterBots.ClaimBot/InventoryTransferBot.fsproj'
               arguments: '-c Release --self-contained -o $(Build.BinariesDirectory)/windows -r win-x64'
               zipAfterPublish: false
           - task: DeleteFiles@1
@@ -163,7 +163,7 @@ stages:
             inputs:
               command: 'publish'
               publishWebProjects: false
-              projects: 'src/Functional.SplinterBots.ClaimBot/ClaimBot.fsproj'
+              projects: 'src/Functional.SplinterBots.ClaimBot/InventoryTransferBot.fsproj'
               arguments: '-c Release --self-contained -o $(Build.BinariesDirectory)/mac -r osx-x64'
               zipAfterPublish: false
           - task: DeleteFiles@1
