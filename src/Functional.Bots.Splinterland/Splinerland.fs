@@ -6,9 +6,6 @@ module Splinterland =
     open Config
     open Types
 
-    type ReadValuesKeys =
-        | GameBalance
-
     type Log = string -> Context -> Async<unit>
 
     let donateAccountName = "splinterbots"
@@ -79,10 +76,11 @@ module Splinterland =
         async {
             do! evaluate "SM.ShowDialog('dec_info');" context
 
-            let! result = readValueFromSelector "#game_balance" ReadValuesKeys.GameBalance context 
+            let! result = readValueBySelector "#game_balance" context 
+            do! waitFor5Seconds context
             let donationAmount, userAmount = result |> SplinterBotsMath.calculateAmounts
 
-            if donationAmount > 0.01M then 
+            if userAmount > 0.001M then 
                 do! log $"Transfering DEC" context
 
                 do! log $"Sent creator donation of {donationAmount} DEC" context
@@ -120,10 +118,11 @@ module Splinterland =
             do! evaluate "SM.ShowHomeView('sps_management');" context
         
             let! result = 
-                readValueFromSelector "#player_ingame_value" ReadValuesKeys.GameBalance context 
+                readValueBySelector "#player_ingame_value" context 
+            do! waitFor5Seconds context
             let donationAmount, userAmount = result |> SplinterBotsMath.calculateAmounts
 
-            if donationAmount > 0.01M then 
+            if userAmount > 0.001M then 
                 do! log $"Transfering SPS" context
 
                 do! log $"Sent creator donation of {donationAmount} SPS" context
@@ -151,4 +150,28 @@ module Splinterland =
             log "Checking SPS"
             sentSPS log transferDetails
             log "Transfer all applicable SPS"
+        |]
+
+    let transferCards log config = 
+        let runTransfer context = 
+            async {
+                let! cardIds = 
+                    readMultiplePropertyValueBySelector "div.card" "id"  context
+                for cardId in cardIds do 
+                    do! log $"transfering card {cardId}" context
+                    do! clickBySelector $"#{cardId}" context 
+                    do! clickBySelector "#check_all" context 
+                    do! clickBySelector "#btn_send" context 
+                    do! typeBySelector "#recipient" config.destinationAccount context
+                    do! approvePayment log "#btn_send_popup_send" config.activeKey context
+                    do! clickBySelector "#btn_back_collection" context
+                return ()
+            }
+        [|
+            log  "Checking cards to transfer"
+            //evaluate "SM.ResetFilters(); SM.ShowCollection();"
+            clickBySelector "li#menu_item_collection a"
+            selectOptionBySelector "#filter-owned" "owned"
+            runTransfer
+            log "finished card trasnfer"
         |]

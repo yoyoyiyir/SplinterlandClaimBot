@@ -6,24 +6,34 @@ let private logToConsole user message context =
         printfn "[%s]: %s - %s" (System.DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")) user message
     }
 
+let runIfConfigAllows check action =
+    match check with 
+    | true -> action
+    | _ -> [||]
+
 let transferResourceFromOneAccount config transferDetail= 
     let log = logToConsole transferDetail.username
+    let page = Splinterland.getPage config.browser.headless |> Async.RunSynchronously
     try 
-        let page = Splinterland.getPage config.browser.headless |> Async.RunSynchronously
-        [|
-            Splinterland.loadSplinterlands()
-            Splinterland.login log transferDetail
-            Splinterland.closePopUp()
-            Splinterland.transferDec log transferDetail
-            Splinterland.transferSPS log transferDetail
-            //runIfConfigAllows transferCards (Splinterland.transferCards)
-            //runIfConfigAllows claimWeekly (Splinterland.claimWeeklyRewards)
-            //runIfConfigAllows claimSeason (Splinterland.claimSeasonRewards)
-            Splinterland.logout()
-            Splinterland.close()
-        |] |> Seq.concat |> Splinterland.runActions page
-    with 
-    | :? System.Exception as exp -> printfn $"{exp.Message}"
+        try 
+            [|
+                Splinterland.loadSplinterlands()
+                Splinterland.login log transferDetail
+                Splinterland.closePopUp()
+                Splinterland.transferDec log transferDetail
+                Splinterland.transferSPS log transferDetail
+                runIfConfigAllows 
+                    config.transferCards 
+                    (Splinterland.transferCards log transferDetail) 
+                //runIfConfigAllows claimWeekly (Splinterland.claimWeeklyRewards)
+                //runIfConfigAllows claimSeason (Splinterland.claimSeasonRewards)
+                Splinterland.logout()
+            
+            |] |> Seq.concat |> Splinterland.runActions page
+        with 
+            | :? System.Exception as exp -> printfn $"{exp.Message}"
+    finally
+        Splinterland.close() |> Splinterland.runActions page
 
 let trasferUserResources config = 
     let transferResources = 
