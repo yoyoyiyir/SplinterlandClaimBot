@@ -8,6 +8,16 @@ I am still considering the level of the dev donation but it will never be larger
 This bot is still work in progress, and as such some things might change. 
 I have an idea to improve thte UI and onboarding process but it depends on the free time I will get.
 
+# Installation 
+Download bot from [Releases page](https://github.com/functional-solutions/SplinterlandClaimBot/releases) it will contain the single executable file with config. Just  run the exe file on your machine.
+
+# To be done.
+I want to improve the UI so there is no need to manually edit configuration file. 
+
+Please report any bug so I can fix it. 
+
+In general app is still in progress and will have to be updated. 
+
 # Donation 
 Event the bot it taking some donations, there is an option to help me more:
  * DEC in game in account @splinterbots 
