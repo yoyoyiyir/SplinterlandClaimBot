@@ -1,9 +1,9 @@
 ﻿{
-    "sentCards": false,
+    "sentCards": true,
     "claimWeeklyReward": true,
     "claimSeasonReward": true,
     "browser": {
-        "headless": true
+        "headless": false
     },
     "sentTo": "",
     "accounts": [

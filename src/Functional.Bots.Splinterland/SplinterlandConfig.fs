@@ -37,7 +37,7 @@ module Config =
     type SplinterBotsCofig = 
         {
             browser: Browser
-            sentCards: bool
+            transferCards: bool
             claimWeeklyReward: bool
             claimSeasonReward: bool            
             transferDetails: TransferDetails array
@@ -61,7 +61,7 @@ module Config =
                     |> Array.map (fun userInfo -> TransferDetails.bind sentTo userInfo)
                 {
                     browser = config.GetSection("browser").Get<Browser>()
-                    sentCards = config.GetValue<bool> "sentCards"
+                    transferCards = config.GetValue<bool> "sentCards"
                     claimWeeklyReward = config.GetValue<bool> "claimWeeklyReward" 
                     claimSeasonReward = config.GetValue<bool> "claimSeasonReward"
                     transferDetails = transferSettigs

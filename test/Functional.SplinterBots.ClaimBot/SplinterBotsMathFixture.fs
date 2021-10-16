@@ -2,6 +2,7 @@ module Tests
 
 open Xunit
 open FsUnit.Xunit
+open Functional.SplinterBots
 
 let roundValues : obj[] seq = 
     seq { 

@@ -5,7 +5,7 @@
       <TargetFramework>net6.0</TargetFramework>
       <PublishSingleFile>true</PublishSingleFile>
       <RuntimeIdentifiers>win-x64;linux-arm64</RuntimeIdentifiers>
-      <UserSecretsId>4f83c705s-a549-4f1d-acee-277f3e517705</UserSecretsId>
+      <UserSecretsId>4f83c705-a549-4f1d-acee-277f3e517705</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

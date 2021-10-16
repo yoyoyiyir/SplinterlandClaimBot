@@ -48,13 +48,24 @@ let selectOptionBySelector selector optionName (context: Context) =
 let typeBySelector selector text (context: Context) =
     context |> handleTaskWithSelector selector (fun ctx -> ctx.TypeAsync(text))
 
-let readValueFromSelector selector propertyKey (context: Context) = 
+let readValueBySelector selector (context: Context) = 
     async {
         let! value = context.WaitForSelectorAsync(selector) |> Async.AwaitTask
         let! valueInJson = value.EvaluateFunctionAsync("el => el.textContent") |> Async.AwaitTask
         let result = valueInJson.ToString()
 
         return result
+    }
+
+let readMultiplePropertyValueBySelector selector property (context: Context) = 
+    async {
+        let! elements = context.QuerySelectorAllAsync selector |> Async.AwaitTask
+        let results = 
+            elements 
+            |> Seq.map (fun ctx -> ctx.GetPropertyAsync property |> Async.AwaitTask |> Async.RunSynchronously)
+            |> Seq.map (fun prop -> prop.RemoteObject.Value.ToString())
+            |> Array.ofSeq
+        return results
     }
 
 let pressKey (key: Keys) (context: Context) =
