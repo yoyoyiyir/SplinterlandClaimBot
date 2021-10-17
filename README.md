@@ -14,7 +14,19 @@ Download bot from [Releases page](https://github.com/functional-solutions/Splint
 # Configuratin
 Currently there is not UI configuration so all change have to be done in config.yml and account.yml. Idea is that config.yml contains the overridable settings which cabn change with every release and *accounts.yml* contains the list of accounts. 
 
-Please check the accounts-example.yml to see the configuration sdtructure.
+Create the **account.ym** file like: 
+```
+sentTo: 'main_account_name'  
+accounts:
+  - username: 'account1_name'
+    postingKey: 'account1_posting_key'
+    activeKey: 'account1_active_or_master_key'
+  - username: 'account2_name'
+    postingKey: 'account2_posting_key'
+    activeKey: 'account2_active_or_master_key'
+```
+
+The option in coinfig.yml can be changed as well but the default should be fine
 
 # To be done.
 I want to improve the UI so there is no need to manually edit configuration file.  However I will keep it as a console up so it can be run anywhere. 
