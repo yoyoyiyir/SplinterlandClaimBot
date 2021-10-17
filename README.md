@@ -11,8 +11,13 @@ I have an idea to improve thte UI and onboarding process but it depends on the f
 # Installation 
 Download bot from [Releases page](https://github.com/functional-solutions/SplinterlandClaimBot/releases) it will contain the single executable file with config. Just  run the exe file on your machine.
 
+# Configuratin
+Currently there is not UI configuration so all change have to be done in config.yml and account.yml. Idea is that config.yml contains the overridable settings which cabn change with every release and *accounts.yml* contains the list of accounts. 
+
+Please check the accounts-example.yml to see the configuration sdtructure.
+
 # To be done.
-I want to improve the UI so there is no need to manually edit configuration file. 
+I want to improve the UI so there is no need to manually edit configuration file.  However I will keep it as a console up so it can be run anywhere. 
 
 Please report any bug so I can fix it. 
 
