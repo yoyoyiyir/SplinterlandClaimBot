@@ -1,0 +1,8 @@
+﻿sentTo: 'main_account_name'
+accounts:
+  - username: 'name_used_to_login'
+    postingKey: 'key_used_to_login'
+    activeKey: 'key_used_to_approve_transactions'
+  - username: 'name_used_to_login'
+    postingKey: 'key_used_to_login'
+    activeKey: 'key_used_to_approve_transactions'

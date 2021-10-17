@@ -48,7 +48,8 @@ module Config =
     let getConfiguration (args: string array)  =
         let builder  = 
             new ConfigurationBuilder()
-                |> fun config -> config.AddJsonFile "config.json"
+                |> fun config -> config.AddYamlFile "config.yml"
+                |> fun config -> config.AddYamlFile ("accounts.yml", true)
                 |> fun config -> config.AddCommandLine args
         let intermediate  = builder.Build()
         builder

@@ -17,7 +17,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="config.json">
+    <Content Include="accounts-example.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Compile Include="Program.fs" />
