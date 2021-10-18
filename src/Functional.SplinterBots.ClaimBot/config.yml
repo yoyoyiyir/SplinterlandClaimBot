@@ -1,6 +1,8 @@
 ﻿sentCards: true
 claimWeeklyReward: true
 claimSeasonReward: true
+limits: 
+  dec: 5
 browser:
-  headless: false
+  headless: true
 userSecretId: 4f83c705-a549-4f1d-acee-277f3e517705

@@ -29,11 +29,11 @@ let transferResourceFromOneAccount config transferDetail=
                 //runIfConfigAllows claimSeason (Splinterland.claimSeasonRewards)
                 Splinterland.logout()
             
-            |] |> Seq.concat |> Splinterland.runActions page
+            |] |> Seq.concat |> ActionRunner.runActions page
         with 
             | :? System.Exception as exp -> printfn $"{exp.Message}"
     finally
-        Splinterland.close() |> Splinterland.runActions page
+        Splinterland.close() |> ActionRunner.runActions page
 
 let trasferUserResources config = 
     let transferResources = 

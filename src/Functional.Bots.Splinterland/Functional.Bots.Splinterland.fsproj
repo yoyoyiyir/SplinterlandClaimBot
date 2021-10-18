@@ -9,6 +9,7 @@
         <Compile Include="SplinterlandConfig.fs" />
         <Compile Include="SplinterBotsMath.fs" />
         <Compile Include="Splinerland.fs" />
+        <Compile Include="ActionRunner.fs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -18,6 +19,7 @@
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0-rc.2.21480.5" />
         <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0-rc.2.21480.5" />
         <PackageReference Include="NetEscapades.Configuration.Yaml" Version="2.1.0" />
+        <PackageReference Include="Pholly" Version="0.0.7" />
     </ItemGroup>
 
     <ItemGroup>

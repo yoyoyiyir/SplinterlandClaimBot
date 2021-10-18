@@ -52,8 +52,12 @@ module Config =
                 |> fun config -> config.AddYamlFile ("accounts.yml", true)
                 |> fun config -> config.AddCommandLine args
         let intermediate  = builder.Build()
+        let userSecretId = 
+            match intermediate.["userSecretId"] with 
+            | null -> "missing"
+            | _ as x -> x
         builder
-            |> fun config -> config.AddUserSecrets(intermediate.["userSecretId"])
+            |> fun config -> config.AddUserSecrets(userSecretId)
             |> fun config -> config.Build()
             |> fun config -> 
                 let transferSettigs = 
