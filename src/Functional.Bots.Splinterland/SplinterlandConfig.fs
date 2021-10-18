@@ -1,7 +1,6 @@
 ﻿namespace Functional.SplinterBots
 
 module Config = 
-
     open Microsoft.Extensions.Configuration
     open Microsoft.Extensions.Configuration.UserSecrets
 

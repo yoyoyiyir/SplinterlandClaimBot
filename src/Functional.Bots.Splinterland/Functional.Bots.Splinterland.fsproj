@@ -7,8 +7,10 @@
 
     <ItemGroup>
         <Compile Include="SplinterlandConfig.fs" />
-        <Compile Include="SplinterBotsMath.fs" />
+        <Compile Include="Commons.fs" />
         <Compile Include="Splinerland.fs" />
+        <Compile Include="Transfers.fs" />
+        <Compile Include="Cards.fs" />
         <Compile Include="ActionRunner.fs" />
     </ItemGroup>
 

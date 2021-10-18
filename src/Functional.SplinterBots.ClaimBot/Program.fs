@@ -20,11 +20,11 @@ let transferResourceFromOneAccount config transferDetail=
                 Splinterland.loadSplinterlands()
                 Splinterland.login log transferDetail
                 Splinterland.closePopUp()
-                Splinterland.transferDec log transferDetail
-                Splinterland.transferSPS log transferDetail
+                DEC.transferDec log transferDetail
+                SPS.transferSPS log transferDetail
                 runIfConfigAllows 
                     config.transferCards 
-                    (Splinterland.transferCards log transferDetail) 
+                    (Cards.transferCards log transferDetail) 
                 //runIfConfigAllows claimWeekly (Splinterland.claimWeeklyRewards)
                 //runIfConfigAllows claimSeason (Splinterland.claimSeasonRewards)
                 Splinterland.logout()
