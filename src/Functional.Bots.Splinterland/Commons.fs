@@ -11,9 +11,9 @@ module Commons =
     let approvePayment selector password context =
         async {
             do! closeConfirmationDialogWhenAppear context              
-            do! clickBySelector selector context
-            do! typeBySelector "#active_key" password context
-            do! clickBySelector "#approve_tx" context
+            do! click selector context
+            do! ``type`` "#active_key" password context
+            do! click "#approve_tx" context
             do! pressKey Keys.Escape context 
             ()
         }

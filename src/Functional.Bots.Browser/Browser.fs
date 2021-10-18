@@ -38,17 +38,17 @@ let setViewPortSize width height (context: Context) =
     let options = new ViewPortOptions (Width = width, Height = height)
     context |> handleTask (fun ctx -> ctx.SetViewportAsync(options))
 
-let clickBySelector selector (context: Context) =
+let click selector (context: Context) =
     context |> handleTaskWithSelector selector (fun ctx -> ctx.ClickAsync())
 
-let selectOptionBySelector selector optionName (context: Context) = 
+let selectOption selector optionName (context: Context) = 
     let values = [| String.toString optionName |]
     context |> handleTaskOfWithSelector selector (fun ctx -> ctx.SelectAsync(values))
 
-let typeBySelector selector text (context: Context) =
+let ``type`` selector text (context: Context) =
     context |> handleTaskWithSelector selector (fun ctx -> ctx.TypeAsync(text))
 
-let readValueBySelector selector (context: Context) = 
+let readValue selector (context: Context) = 
     async {
         let! value = context.WaitForSelectorAsync(selector) |> Async.AwaitTask
         let! valueInJson = value.EvaluateFunctionAsync("el => el.textContent") |> Async.AwaitTask
@@ -57,7 +57,7 @@ let readValueBySelector selector (context: Context) =
         return result
     }
 
-let readMultiplePropertyValueBySelector selector property (context: Context) = 
+let readProperty selector property (context: Context) = 
     async {
         let! elements = context.QuerySelectorAllAsync selector |> Async.AwaitTask
         let results = 

@@ -11,6 +11,7 @@
         <Compile Include="Splinerland.fs" />
         <Compile Include="Transfers.fs" />
         <Compile Include="Cards.fs" />
+        <Compile Include="ClaimChest.fs" />
         <Compile Include="ActionRunner.fs" />
     </ItemGroup>
 

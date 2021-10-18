@@ -25,9 +25,9 @@ module Splinterland =
     let login log (config: TransferDetails) = 
         [|
             log $"Trying to log in ..."
-            clickBySelector "#log_in_button > button"
-            typeBySelector "#email" config.username
-            typeBySelector "#password" config.postingKey
+            click "#log_in_button > button"
+            ``type`` "#email" config.username
+            ``type`` "#password" config.postingKey
             pressKey Keys.Enter 
             log $"User logged"            
         |]

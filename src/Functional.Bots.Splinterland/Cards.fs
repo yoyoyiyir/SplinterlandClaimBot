@@ -10,24 +10,24 @@ module Cards =
         let runTransfer context = 
             async {
                 let! cardIds = 
-                    readMultiplePropertyValueBySelector "div.card" "id"  context
+                    readProperty "div.card" "id"  context
 
                 for cardId in cardIds do 
-                    do! clickBySelector "li#menu_item_collection a" context 
+                    do! click "li#menu_item_collection a" context 
                     do! log $"transfering card {cardId}" context
-                    do! clickBySelector $"#{cardId}" context 
-                    do! clickBySelector "#check_all" context 
-                    do! clickBySelector "#btn_send" context 
-                    do! typeBySelector "#recipient" config.destinationAccount context
+                    do! click $"#{cardId}" context 
+                    do! click "#check_all" context 
+                    do! click "#btn_send" context 
+                    do! ``type`` "#recipient" config.destinationAccount context
                     do! approvePayment "#btn_send_popup_send" config.activeKey context
-                    do! clickBySelector "#btn_back_collection" context
+                    do! click "#btn_back_collection" context
                 return ()
             }
         [|
             log  "Checking cards to transfer"
             //evaluate "SM.ResetFilters(); SM.ShowCollection();"
-            clickBySelector "li#menu_item_collection a"
-            selectOptionBySelector "#filter-owned" "owned"
+            click "li#menu_item_collection a"
+            selectOption "#filter-owned" "owned"
             runTransfer
             log "finished card trasnfer"
         |]
