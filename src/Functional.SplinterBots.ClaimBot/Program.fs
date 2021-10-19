@@ -1,10 +1,8 @@
 ﻿open Functional.SplinterBots
 open Config 
 
-let private logToConsole user message context = 
-    async {
-        printfn "[%s]: %s - %s" (System.DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")) user message
-    }
+let private logToConsole user message = 
+    printfn "[%s]: %s - %A" (System.DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")) user message
 
 let runIfConfigAllows check action =
     match check with 
@@ -18,22 +16,22 @@ let transferResourceFromOneAccount config transferDetail=
         try 
             [|
                 Splinterland.loadSplinterlands()
-                Splinterland.login log transferDetail
+                Splinterland.login transferDetail
                 Splinterland.closePopUp()
-                DEC.transferDec log transferDetail
-                SPS.transferSPS log transferDetail
-                runIfConfigAllows 
-                    config.transferCards 
-                    (Cards.transferCards log transferDetail) 
+                DEC.transferDec transferDetail
+                SPS.transferSPS transferDetail
+                //runIfConfigAllows 
+                //    config.transferCards 
+                //    (Cards.transferCards transferDetail) 
                 //runIfConfigAllows claimWeekly (Splinterland.claimWeeklyRewards)
                 //runIfConfigAllows claimSeason (Splinterland.claimSeasonRewards)
                 Splinterland.logout()
             
-            |] |> Seq.concat |> ActionRunner.runActions page
+            |] |> Seq.concat |> ActionRunner.runActions page log
         with 
             | :? System.Exception as exp -> printfn $"{exp.Message}"
     finally
-        Splinterland.close() |> ActionRunner.runActions page
+        Splinterland.close() |> ActionRunner.runActions page log
 
 let trasferUserResources config = 
     let transferResources = 

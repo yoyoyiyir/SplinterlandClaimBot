@@ -9,43 +9,32 @@ module DEC =
     
     let private transferDecToUser username password (amount: decimal) context = 
         async {
-            try
-                do! evaluate "SM.ShowDialog('dec_info');" context
-                do! waitForASecond context
-                do! ``type`` "#dec_amount" (amount.ToString("0.000")) context
-                do! selectOption "#dec_wallet_type" "player" context
-                do! ``type`` "input[name=playerName]" username context
-                do! approvePayment "#transfer_out_btn" password context
-                do! waitForASecond context
-            finally
-                ()
+            do! evaluate "SM.ShowDialog('dec_info');" context
+            do! ``type`` "#dec_amount" (amount.ToString("0.000")) context
+            do! selectOption "#dec_wallet_type" "player" context
+            do! ``type`` "input[name=playerName]" username context
+            do! approvePayment "#transfer_out_btn" password context
         }
-    let private sentDec log config context =
+    let private sentDec username password percentage context: Async<SplinterlandStatus> =
         async {
             do! evaluate "SM.ShowDialog('dec_info');" context
-
             let! result = readValue "#game_balance" context 
-            do! waitFor5Seconds context
-            let donationAmount, userAmount = result |> calculateAmounts
+            let transferAmount = result |> calculateAmounts percentage
 
-            if userAmount > 0.001M then 
-                do! log $"Transfering DEC" context
-                
-                do! log $"Sent credits to main account of {userAmount} DEC" context
-                do! transferDecToUser config.destinationAccount config.activeKey userAmount context
+            if transferAmount >= 0.001M then 
+                do! transferDecToUser username password transferAmount context
+                do! pressKey Keys.Escape context 
 
-                do! log $"Sent creator donation of {donationAmount} DEC" context
-                do! transferDecToUser donateAccountName config.activeKey donationAmount context
+                return DECTransfered (username, transferAmount)
             else
-                do! log "Amount is zero no transfer today" context
-
-            do! pressKey Keys.Escape context
+                return NoDECToTransfer
         }
-    let transferDec log config =
+    let transferDec config =
         [|
-            log "Checking DEC"
-            sentDec log config 
-            log "Transfer all applicable DEC"
+            message DECTransfeStarted
+            sentDec donateAccountName config.activeKey 0.001M
+            sentDec config.destinationAccount config.activeKey 1M
+            message DECTransferFinished
         |]
         
 module SPS = 
@@ -57,52 +46,40 @@ module SPS =
 
     let private  transferSPSToUser user password (amount: decimal) context =
         async {
-            try
-                do! evaluate "SM.ShowDialog('sps_management/transfer');" context
-                do! waitForASecond context
-                do! ``type`` "#sps_transfer_amount" (amount.ToString("0.000")) context
-                do! selectOption "#transfer_dest_select" "player" context
-                do! ``type`` "#txtPlayerToSend" user context
-                do! approvePayment "#btnTransferOut" password context
-                do! waitForASecond context
-            finally
-                ()
+            do! evaluate "SM.ShowDialog('sps_management/transfer');" context
+            do! waitForASecond context
+            do! ``type`` "#sps_transfer_amount" (amount.ToString("0.000")) context
+            do! selectOption "#transfer_dest_select" "player" context
+            do! ``type`` "#txtPlayerToSend" user context
+            do! approvePayment "#btnTransferOut" password context
+            do! waitForASecond context
         }
-    let private sentSPS log config context =
+    let private sentSPS username password percentage context =
         async {
             do! evaluate "SM.ShowHomeView('sps_management');" context
         
             let! result = 
                 readValue "#player_ingame_value" context 
-            do! waitFor5Seconds context
-            let donationAmount, userAmount = result |> calculateAmounts
-
-            if userAmount > 0.001M then 
-                do! log $"Transfering SPS" context
-
-                do! log $"Sent credits to main account of {userAmount} SPS" context
-                do! transferSPSToUser config.destinationAccount config.activeKey userAmount context
-                
-                do! waitFor5Seconds context
-
-                do! log $"Sent creator donation of {donationAmount} SPS" context
-                do! transferSPSToUser donateAccountName config.activeKey donationAmount context
-            else
-                do! log "Amount is zero no transfer today" context
             
-            do! pressKey Keys.Escape context
-        }   
-    let transferSPS log transferDetails =
-        [|
-            log "Claiming SPS"
-            evaluate "SM.ShowHomeView('sps_management');"
-            closeConfirmationDialogWhenAppear
-            click "#claim_btn_hive"
-            pressKey Keys.Escape
-            log "All SPS claimed"
-            waitForASecond
+            let transferAmount = result |> calculateAmounts percentage
 
-            log "Checking SPS"
-            sentSPS log transferDetails
-            log "Transfer all applicable SPS"
+            if transferAmount >= 0.001M then 
+                do! transferSPSToUser username password transferAmount context
+                do! pressKey Keys.Escape context 
+
+                return SPSTransfered (username, transferAmount)
+            else
+                return NoSPSToTransfer
+        }   
+    let transferSPS config =
+        [|
+            message SPSTransfeStarted
+            evaluate "SM.ShowHomeView('sps_management');" >+ ClaimSPS
+            closeConfirmationDialogWhenAppear >+ ClaimSPS
+            click "#claim_btn_hive" >+ ClaimSPS
+            pressKey Keys.Escape >+ ClaimSPS
+
+            sentSPS donateAccountName config.activeKey 0.001M
+            sentSPS config.destinationAccount config.activeKey 1M
+            message SPSTransferFinished
         |]

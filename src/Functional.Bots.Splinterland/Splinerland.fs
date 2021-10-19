@@ -3,6 +3,7 @@
 module Splinterland =
 
     open Browser
+    open Commons
     open Config
     open Types
 
@@ -12,33 +13,34 @@ module Splinterland =
 
     let loadSplinterlands () = 
         [|
-            setViewPortSize 1200 1500
-            goTo "https://splinterlands.com/"
+            message BrowserInitialisation
+            setViewPortSize 1200 1500 >+ SetUpBrowser
+            goTo "https://splinterlands.com/" >+ SetUpBrowser
         |]
 
     let close () = 
-        let closeBorwser (context: Context) = context.Browser |> closeBrowser
+        let closeBrowser (context: Context) = context.Browser |> closeBrowser
         [|
-            closeBorwser
+            closeBrowser >+ CloseBrowser
         |]
 
-    let login log (config: TransferDetails) = 
+    let login (config: TransferDetails) = 
         [|
-            log $"Trying to log in ..."
-            click "#log_in_button > button"
-            ``type`` "#email" config.username
-            ``type`` "#password" config.postingKey
-            pressKey Keys.Enter 
-            log $"User logged"            
+            message LoginStarting
+            click "#log_in_button > button" >+ LoginInProgress config.username 
+            ``type`` "#email" config.username >+ LoginInProgress config.username 
+            ``type`` "#password" config.postingKey >+ LoginInProgress config.username 
+            pressKey Keys.Enter >+ LoginInProgress config.username
+            message (UserIsLoggedIn config.username)
         |]
 
     let logout () =
         [|
-            evaluate "SM.Logout();"
-            waitFor5Seconds
+            evaluate "SM.Logout();" >+ Logout
+            waitFor5Seconds >+ Ignore
         |]
         
     let closePopUp () =
         [| 
-            pressKey Keys.Escape 
+            pressKey Keys.Escape >+ ClosePopup
         |]

@@ -5,10 +5,12 @@ module ActionRunner =
     open Types
     open Pholly
     open Retry
+    open Commons
 
-    let private executeAction (context: Context) (action: Context -> Async<'a>) =
-        action context |> Async.RunSynchronously |> ignore
+    let private executeAction context handleMessages action: unit =
+        let result = action context |> Async.RunSynchronously 
+        handleMessages result
 
-    let runActions context (actions: seq<Context -> Async<'a>>)  =
-        let execute = executeAction context
+    let runActions context handleMessages (actions: seq<Context -> Async<'a>>)  =
+        let execute = executeAction context handleMessages 
         actions |> Seq.iter execute
